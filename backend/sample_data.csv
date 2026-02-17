@@ -1,0 +1,21 @@
+Employee ID,First Name,Last Name,Department,Job Title,Hire Date,Salary,Active,Email,Location
+1001,Sarah,Chen,Engineering,Senior Software Engineer,2022-03-15,125000.00,true,sarah.chen@company.com,San Francisco
+1002,Marcus,Johnson,Sales,Account Executive,2021-07-22,85000.00,true,marcus.j@company.com,New York
+1003,Emily,Rodriguez,Marketing,Content Manager,2023-01-10,72000.00,true,emily.r@company.com,Austin
+1004,James,Thompson,Engineering,DevOps Engineer,2020-11-05,115000.00,true,james.t@company.com,Seattle
+1005,Aisha,Patel,Product,Product Manager,2022-09-18,135000.00,true,aisha.p@company.com,Boston
+1006,David,Kim,Finance,Financial Analyst,2021-04-30,78000.00,true,david.kim@company.com,Chicago
+1007,Lisa,Anderson,HR,HR Business Partner,2019-08-14,92000.00,true,lisa.a@company.com,Denver
+1008,Michael,Wong,Engineering,Frontend Developer,2023-05-20,95000.00,true,michael.w@company.com,San Francisco
+1009,Jennifer,Martinez,Sales,Sales Director,2018-02-11,155000.00,true,jennifer.m@company.com,New York
+1010,Ryan,O'Brien,Marketing,Marketing Manager,2022-12-01,98000.00,true,ryan.o@company.com,Los Angeles
+1011,Priya,Sharma,Engineering,Backend Developer,2023-08-07,105000.00,true,priya.s@company.com,Seattle
+1012,Carlos,Sanchez,Product,UX Designer,2021-10-25,88000.00,true,carlos.s@company.com,Austin
+1013,Nicole,Taylor,Finance,Controller,2020-06-15,128000.00,true,nicole.t@company.com,Boston
+1014,Kevin,Lee,Sales,Account Manager,2022-04-18,82000.00,true,kevin.lee@company.com,Chicago
+1015,Amanda,Brown,Engineering,QA Engineer,2023-02-28,87000.00,true,amanda.b@company.com,Denver
+1016,Thomas,Davis,Marketing,SEO Specialist,2021-09-12,75000.00,true,thomas.d@company.com,San Francisco
+1017,Rachel,Wilson,HR,Recruiter,2022-07-05,68000.00,true,rachel.w@company.com,New York
+1018,Daniel,Garcia,Engineering,Tech Lead,2019-12-20,145000.00,true,daniel.g@company.com,Seattle
+1019,Sophia,Miller,Product,Product Designer,2023-03-14,92000.00,true,sophia.m@company.com,Los Angeles
+1020,Brandon,Moore,Finance,Senior Accountant,2020-10-08,84000.00,true,brandon.m@company.com,Austin
