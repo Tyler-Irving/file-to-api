@@ -81,12 +81,14 @@ DATABASES = {
 }
 
 # Enable WAL mode for better concurrency
-if DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
-    DATABASES['default']['OPTIONS']['init_command'] = (
-        'PRAGMA journal_mode=WAL; '
-        'PRAGMA busy_timeout=5000; '
-        'PRAGMA synchronous=NORMAL;'
-    )
+# Note: SQLite doesn't support 'init_command' in Django
+# WAL mode will be set via connection on first use
+# if DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
+#     DATABASES['default']['OPTIONS']['init_command'] = (
+#         'PRAGMA journal_mode=WAL; '
+#         'PRAGMA busy_timeout=5000; '
+#         'PRAGMA synchronous=NORMAL;'
+#     )
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

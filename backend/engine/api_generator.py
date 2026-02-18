@@ -109,9 +109,12 @@ def create_serializer_class(slug: str, fields: dict):
     """
     class_name = f'{slug.replace("-", "_").title()}Serializer'
     
+    # Capture field names before defining Meta class
+    field_names = list(fields.keys())
+    
     # Add Meta class
     class Meta:
-        fields = list(fields.keys())
+        fields = field_names
     
     fields['Meta'] = Meta
     
@@ -136,10 +139,13 @@ def create_viewset_class(dataset, columns, serializer_class):
     table_name = dataset.table_name
     slug = dataset.slug
     
+    # Capture serializer_class in closure to avoid scoping issues in class definition
+    _serializer_class = serializer_class
+    
     class DynamicViewSet(viewsets.ViewSet):
         """Auto-generated REST API for dataset."""
         
-        serializer_class = serializer_class
+        serializer_class = _serializer_class
         
         def get_permissions(self):
             """Check that request is authenticated with dataset owner's API key."""
@@ -189,7 +195,7 @@ def create_viewset_class(dataset, columns, serializer_class):
             total_count = get_table_row_count(table_name)
             
             # Serialize
-            serializer = serializer_class(rows, many=True)
+            serializer = _serializer_class(rows, many=True)
             
             return Response({
                 'count': total_count,
@@ -223,7 +229,7 @@ def create_viewset_class(dataset, columns, serializer_class):
                     status=status.HTTP_404_NOT_FOUND
                 )
             
-            serializer = serializer_class(row)
+            serializer = _serializer_class(row)
             return Response(serializer.data)
         
         @method_decorator(ratelimit(key='user', rate=settings.RATE_LIMIT_WRITE, method='POST'))
@@ -235,7 +241,7 @@ def create_viewset_class(dataset, columns, serializer_class):
                     status=status.HTTP_403_FORBIDDEN
                 )
             
-            serializer = serializer_class(data=request.data)
+            serializer = _serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
             
             # Insert row
@@ -243,7 +249,7 @@ def create_viewset_class(dataset, columns, serializer_class):
             
             # Fetch created row
             row = get_single_row(table_name, columns, row_id)
-            output_serializer = serializer_class(row)
+            output_serializer = _serializer_class(row)
             
             return Response(output_serializer.data, status=status.HTTP_201_CREATED)
         
@@ -272,7 +278,7 @@ def create_viewset_class(dataset, columns, serializer_class):
                     status=status.HTTP_404_NOT_FOUND
                 )
             
-            serializer = serializer_class(data=request.data)
+            serializer = _serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
             
             # Update row
@@ -280,7 +286,7 @@ def create_viewset_class(dataset, columns, serializer_class):
             
             # Fetch updated row
             row = get_single_row(table_name, columns, row_id)
-            output_serializer = serializer_class(row)
+            output_serializer = _serializer_class(row)
             
             return Response(output_serializer.data)
         
@@ -309,7 +315,7 @@ def create_viewset_class(dataset, columns, serializer_class):
                     status=status.HTTP_404_NOT_FOUND
                 )
             
-            serializer = serializer_class(data=request.data, partial=True)
+            serializer = _serializer_class(data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             
             # Update row
@@ -317,7 +323,7 @@ def create_viewset_class(dataset, columns, serializer_class):
             
             # Fetch updated row
             row = get_single_row(table_name, columns, row_id)
-            output_serializer = serializer_class(row)
+            output_serializer = _serializer_class(row)
             
             return Response(output_serializer.data)
         

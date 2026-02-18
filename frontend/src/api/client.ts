@@ -12,8 +12,12 @@ export const apiClient = axios.create({
 // Add API key to requests if available
 apiClient.interceptors.request.use((config) => {
   const apiKey = localStorage.getItem('api_key');
+  console.log('[Interceptor] API key from localStorage:', apiKey?.substring(0, 20));
   if (apiKey) {
     config.headers.Authorization = `Api-Key ${apiKey}`;
+    console.log('[Interceptor] Added Authorization header:', config.headers.Authorization?.substring(0, 30));
+  } else {
+    console.warn('[Interceptor] No API key found in localStorage!');
   }
   return config;
 });

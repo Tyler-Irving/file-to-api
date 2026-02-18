@@ -50,6 +50,7 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
     columns = DatasetColumnSerializer(many=True, read_only=True)
     api_url = serializers.SerializerMethodField()
     docs_url = serializers.SerializerMethodField()
+    api_key_value = serializers.SerializerMethodField()
     
     class Meta:
         model = Dataset
@@ -66,6 +67,7 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
             'columns',
             'api_url',
             'docs_url',
+            'api_key_value',
             'created_at',
             'updated_at',
         ]
@@ -85,6 +87,12 @@ class DatasetDetailSerializer(serializers.ModelSerializer):
     
     def get_docs_url(self, obj):
         return f'/api/docs/#/data/{obj.slug}'
+    
+    def get_api_key_value(self, obj):
+        """Return the full API key (only shown once after creation)."""
+        # Full key is returned in the view response for new uploads
+        # This field is kept for compatibility but returns None
+        return None
 
 
 class DatasetUploadSerializer(serializers.ModelSerializer):

@@ -65,8 +65,8 @@ export default function APIKeys() {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">API Keys</h1>
-          <p className="text-gray-600 mt-1">Manage authentication keys for API access</p>
+          <h1 className="text-3xl font-bold text-white">API Keys</h1>
+          <p className="text-gray-300 mt-1">Manage authentication keys for API access</p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
@@ -79,18 +79,18 @@ export default function APIKeys() {
 
       {/* Generated Key Alert */}
       {generatedKey && (
-        <div className="card bg-green-50 border-green-200 mb-6">
+        <div className="card bg-green-900/30 border-green-700 mb-6">
           <div className="flex items-start space-x-3">
-            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-medium text-green-900 mb-2">
+              <h3 className="font-medium text-green-200 mb-2">
                 API Key Generated Successfully!
               </h3>
-              <p className="text-sm text-green-800 mb-3">
+              <p className="text-sm text-green-300 mb-3">
                 Copy this key now — it won't be shown again.
               </p>
               <div className="flex items-center space-x-2">
-                <code className="flex-1 px-3 py-2 bg-white border border-green-300 rounded text-sm font-mono break-all">
+                <code className="flex-1 px-3 py-2 bg-gray-900 border border-green-700 rounded text-sm font-mono break-all text-green-200">
                   {generatedKey}
                 </code>
                 <button
@@ -118,10 +118,10 @@ export default function APIKeys() {
       {/* Create Form */}
       {showCreateForm && !generatedKey && (
         <div className="card mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Generate New API Key</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">Generate New API Key</h3>
           <form onSubmit={handleGenerate} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Key Name
               </label>
               <input
@@ -132,7 +132,7 @@ export default function APIKeys() {
                 className="input"
                 required
               />
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-400">
                 Choose a descriptive name to identify this key
               </p>
             </div>
@@ -161,17 +161,17 @@ export default function APIKeys() {
 
       {/* Keys List */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Your API Keys</h2>
+        <h2 className="text-lg font-semibold text-white mb-4">Your API Keys</h2>
         
         {isLoading ? (
-          <p className="text-gray-500">Loading...</p>
+          <p className="text-gray-400">Loading...</p>
         ) : !keys || keys.length === 0 ? (
           <div className="text-center py-8">
-            <KeyIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600">No API keys yet</p>
+            <KeyIcon className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-300">No API keys yet</p>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="mt-4 text-blue-400 hover:text-blue-300 text-sm font-medium"
             >
               Generate your first key
             </button>
@@ -181,18 +181,18 @@ export default function APIKeys() {
             {keys.map((key) => (
               <div
                 key={key.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                className="flex items-center justify-between p-4 border border-gray-700 rounded-lg hover:bg-gray-750"
               >
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
-                    <KeyIcon className="w-4 h-4 text-gray-400" />
+                    <KeyIcon className="w-4 h-4 text-gray-500" />
                     <div>
-                      <h3 className="font-medium text-gray-900">{key.name}</h3>
+                      <h3 className="font-medium text-white">{key.name}</h3>
                       <div className="flex items-center space-x-2 mt-1">
-                        <code className="text-xs font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                        <code className="text-xs font-mono text-gray-300 bg-gray-900 px-2 py-1 rounded">
                           {key.prefix}••••••••
                         </code>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-400">
                           Created {new Date(key.created_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -201,17 +201,17 @@ export default function APIKeys() {
                 </div>
                 <div className="flex items-center space-x-2">
                   {key.is_active ? (
-                    <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+                    <span className="px-2 py-1 text-xs font-semibold bg-green-900/50 text-green-300 rounded-full">
                       Active
                     </span>
                   ) : (
-                    <span className="px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-800 rounded-full">
+                    <span className="px-2 py-1 text-xs font-semibold bg-gray-700 text-gray-300 rounded-full">
                       Inactive
                     </span>
                   )}
                   <button
                     onClick={() => handleRevoke(key.id, key.name)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded"
+                    className="p-2 text-red-400 hover:bg-red-900/30 rounded"
                     title="Revoke key"
                     disabled={revokeMutation.isPending}
                   >
@@ -225,12 +225,12 @@ export default function APIKeys() {
       </div>
 
       {/* Info Box */}
-      <div className="mt-6 card bg-blue-50 border-blue-200">
+      <div className="mt-6 card bg-blue-900/30 border-blue-700">
         <div className="flex items-start space-x-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-blue-900">
+          <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-blue-200">
             <p className="font-medium mb-1">Security Best Practices</p>
-            <ul className="list-disc list-inside space-y-1 text-blue-800">
+            <ul className="list-disc list-inside space-y-1 text-blue-300">
               <li>Keep your API keys secret — never commit them to version control</li>
               <li>Rotate keys periodically for better security</li>
               <li>Revoke unused keys immediately</li>

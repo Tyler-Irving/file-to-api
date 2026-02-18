@@ -9,6 +9,7 @@ export interface Dataset {
   created_at: string;
   api_url: string;
   docs_url: string;
+  api_key?: string; // Only present on creation (full key)
   columns: DatasetColumn[];
 }
 

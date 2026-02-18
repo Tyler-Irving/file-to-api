@@ -17,14 +17,14 @@ export default function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-2">
-              <FileText className="w-8 h-8 text-blue-600" />
-              <h1 className="text-xl font-bold text-gray-900">File-to-API</h1>
+              <FileText className="w-8 h-8 text-blue-500" />
+              <h1 className="text-xl font-bold text-white">File-to-API</h1>
             </div>
             
             <nav className="flex space-x-1">
@@ -39,8 +39,8 @@ export default function Layout({ children }: LayoutProps) {
                     className={cn(
                       'flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors',
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -59,9 +59,9 @@ export default function Layout({ children }: LayoutProps) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="bg-gray-800 border-t border-gray-700 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-gray-400">
             Built with Django + React • Upload CSV/Excel, get REST API instantly
           </p>
         </div>

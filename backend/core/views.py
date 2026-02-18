@@ -5,6 +5,7 @@ import logging
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 from django.conf import settings
@@ -33,6 +34,22 @@ class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     lookup_field = 'slug'
     
+    def get_permissions(self):
+        """
+        Allow unauthenticated uploads (create action).
+        All other actions require API key (enforced in get_queryset).
+        """
+        if self.action == 'create':
+            return [AllowAny()]
+        return [AllowAny()]  # API key enforcement in get_queryset
+    
+    def get_object(self):
+        """Get object with API key check."""
+        if not hasattr(self.request, 'api_key') or not self.request.api_key:
+            from rest_framework.exceptions import NotAuthenticated
+            raise NotAuthenticated('API key required')
+        return super().get_object()
+    
     def get_serializer_class(self):
         if self.action == 'create':
             return DatasetUploadSerializer
@@ -42,11 +59,15 @@ class DatasetViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter datasets by authenticated API key."""
+        logger.info(f"get_queryset called: has api_key={hasattr(self.request, 'api_key')}")
         if hasattr(self.request, 'api_key'):
+            api_key_obj = self.request.api_key
+            logger.info(f"API key: {api_key_obj.prefix if api_key_obj else 'None'}")
             return Dataset.objects.filter(api_key=self.request.api_key)
+        logger.warning("No API key on request")
         return Dataset.objects.none()
     
-    @method_decorator(ratelimit(key='user', rate=settings.RATE_LIMIT_UPLOAD, method='POST'))
+    @method_decorator(ratelimit(key='ip', rate=settings.RATE_LIMIT_UPLOAD, method='POST'))
     def create(self, request, *args, **kwargs):
         """
         Upload a file and create a dataset.
@@ -56,6 +77,16 @@ class DatasetViewSet(viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        
+        # Get or create API key
+        full_key = None
+        if hasattr(request, 'api_key') and request.api_key:
+            api_key = request.api_key
+        else:
+            # Generate new API key for first-time upload
+            from auth_keys.models import APIKey
+            dataset_name = request.data.get('name', 'Uploaded Dataset')
+            api_key, full_key = APIKey.generate(name=f'Auto-generated for {dataset_name}')
         
         # Create initial dataset record
         name = serializer.validated_data.get('name')
@@ -67,7 +98,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
             original_filename=serializer.validated_data['file'].name,
             file=serializer.validated_data['file'],
             file_size=serializer.validated_data['file'].size,
-            api_key=request.api_key,
+            api_key=api_key,
             status='processing',
         )
         
@@ -81,11 +112,17 @@ class DatasetViewSet(viewsets.ModelViewSet):
             dataset.error_message = str(e)
             dataset.save()
         
-        # Return full details
+        # Return full details with API key if newly created
         output_serializer = DatasetDetailSerializer(dataset)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        response_data = output_serializer.data
+        
+        # Include full API key only for new key generation
+        if full_key:
+            response_data['api_key'] = full_key
+        
+        return Response(response_data, status=status.HTTP_201_CREATED)
     
-    @method_decorator(ratelimit(key='user', rate=settings.RATE_LIMIT_WRITE, method='DELETE'))
+    @method_decorator(ratelimit(key='ip', rate=settings.RATE_LIMIT_WRITE, method='DELETE'))
     def destroy(self, request, *args, **kwargs):
         """
         Delete a dataset and its associated table.

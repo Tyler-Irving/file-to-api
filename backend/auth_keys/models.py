@@ -51,26 +51,41 @@ class APIKey(models.Model):
             tuple: (APIKey instance, full_key_string)
             The full key is only returned once and never stored.
         """
-        # Generate random components
-        prefix = secrets.token_hex(4)  # 8 characters
-        key_part = secrets.token_urlsafe(32)  # ~43 characters
+        max_retries = 10
         
-        # Full key format: fta_{prefix}_{key}
-        full_key = f'fta_{prefix}_{key_part}'
+        for attempt in range(max_retries):
+            # Generate random components
+            prefix = secrets.token_hex(4)  # 8 characters
+            key_part = secrets.token_urlsafe(32)  # ~43 characters
+            
+            # Check if prefix already exists
+            if cls.objects.filter(prefix=prefix).exists():
+                # Collision detected, retry with new prefix
+                continue
+            
+            # Full key format: fta_{prefix}_{key}
+            full_key = f'fta_{prefix}_{key_part}'
+            
+            # Hash the key part for storage
+            hashed = hashlib.sha256(
+                f'{key_part}{settings.API_KEY_SALT}'.encode()
+            ).hexdigest()
+            
+            # Create record
+            try:
+                api_key = cls.objects.create(
+                    prefix=prefix,
+                    hashed_key=hashed,
+                    name=name,
+                )
+                return api_key, full_key
+            except Exception:
+                # Race condition: prefix was created between check and insert
+                # Retry with new prefix
+                continue
         
-        # Hash the key part for storage
-        hashed = hashlib.sha256(
-            f'{key_part}{settings.API_KEY_SALT}'.encode()
-        ).hexdigest()
-        
-        # Create record
-        api_key = cls.objects.create(
-            prefix=prefix,
-            hashed_key=hashed,
-            name=name,
-        )
-        
-        return api_key, full_key
+        # If we exhausted retries, raise an error
+        raise RuntimeError(f'Failed to generate unique API key prefix after {max_retries} attempts')
     
     @classmethod
     def validate_key(cls, full_key: str):

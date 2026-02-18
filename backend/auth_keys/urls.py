@@ -1,5 +1,5 @@
 """
-URL configuration for API key management.
+URL routes for API key management.
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter

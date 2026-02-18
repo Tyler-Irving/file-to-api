@@ -25,7 +25,7 @@ export default function DatasetDetail() {
   if (error || !dataset) {
     return (
       <div className="card">
-        <div className="flex items-center space-x-2 text-red-600">
+        <div className="flex items-center space-x-2 text-red-400">
           <AlertCircle className="w-5 h-5" />
           <p>Failed to load dataset</p>
         </div>
@@ -39,7 +39,7 @@ export default function DatasetDetail() {
       <div>
         <Link
           to="/"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center text-sm text-gray-300 hover:text-white mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back to datasets
@@ -47,9 +47,9 @@ export default function DatasetDetail() {
         
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{dataset.name}</h1>
-            <p className="text-gray-600 mt-1">{dataset.original_filename}</p>
-            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+            <h1 className="text-3xl font-bold text-white">{dataset.name}</h1>
+            <p className="text-gray-300 mt-1">{dataset.original_filename}</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-400">
               <span>{dataset.row_count.toLocaleString()} rows</span>
               <span>•</span>
               <span>{dataset.columns.length} columns</span>
@@ -61,10 +61,10 @@ export default function DatasetDetail() {
           <span
             className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${
               dataset.status === 'ready'
-                ? 'bg-green-100 text-green-800'
+                ? 'bg-green-900/50 text-green-300'
                 : dataset.status === 'processing'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'bg-red-100 text-red-800'
+                ? 'bg-yellow-900/50 text-yellow-300'
+                : 'bg-red-900/50 text-red-300'
             }`}
           >
             {dataset.status}
@@ -74,12 +74,12 @@ export default function DatasetDetail() {
 
       {/* Error Message */}
       {dataset.status === 'error' && dataset.error_message && (
-        <div className="card bg-red-50 border-red-200">
+        <div className="card bg-red-900/30 border-red-700">
           <div className="flex items-start space-x-2">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-medium text-red-900">Processing Error</h3>
-              <p className="text-sm text-red-800 mt-1">{dataset.error_message}</p>
+              <h3 className="font-medium text-red-200">Processing Error</h3>
+              <p className="text-sm text-red-300 mt-1">{dataset.error_message}</p>
             </div>
           </div>
         </div>
@@ -87,25 +87,25 @@ export default function DatasetDetail() {
 
       {/* API Info */}
       {dataset.status === 'ready' && (
-        <div className="card bg-blue-50 border-blue-200">
+        <div className="card bg-blue-900/30 border-blue-700">
           <div className="flex items-start space-x-3">
-            <FileJson className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <FileJson className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-medium text-blue-900 mb-2">Your API is Ready!</h3>
+              <h3 className="font-medium text-blue-200 mb-2">Your API is Ready!</h3>
               <div className="space-y-2 text-sm">
                 <div>
-                  <span className="text-blue-700 font-medium">Base URL:</span>
-                  <code className="ml-2 px-2 py-1 bg-white rounded border border-blue-200 text-blue-900">
+                  <span className="text-blue-300 font-medium">Base URL:</span>
+                  <code className="ml-2 px-2 py-1 bg-gray-900 rounded border border-blue-800 text-blue-200">
                     {dataset.api_url}
                   </code>
                 </div>
                 <div>
-                  <span className="text-blue-700 font-medium">Docs:</span>
+                  <span className="text-blue-300 font-medium">Docs:</span>
                   <a
                     href={dataset.docs_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="ml-2 text-blue-600 hover:text-blue-800 underline"
+                    className="ml-2 text-blue-400 hover:text-blue-300 underline"
                   >
                     View OpenAPI Documentation
                   </a>
@@ -119,8 +119,8 @@ export default function DatasetDetail() {
       {/* Schema */}
       <div className="card">
         <div className="flex items-center space-x-2 mb-4">
-          <Code className="w-5 h-5 text-gray-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Schema</h2>
+          <Code className="w-5 h-5 text-gray-400" />
+          <h2 className="text-xl font-semibold text-white">Schema</h2>
         </div>
         <SchemaTable columns={dataset.columns} />
       </div>

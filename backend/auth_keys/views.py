@@ -6,86 +6,75 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from .models import APIKey
-from .serializers import APIKeySerializer, APIKeyCreateSerializer
 
 
 class APIKeyViewSet(viewsets.ViewSet):
     """
-    API key management endpoints.
-    
-    - POST /api/v1/keys/ - Generate a new API key
-    - GET /api/v1/keys/ - List your API keys (requires auth)
-    - DELETE /api/v1/keys/{id}/ - Revoke an API key
+    API endpoints for API key management.
     """
-    
-    def get_permissions(self):
-        """Allow anyone to create a key, require auth for other actions."""
-        if self.action == 'create':
-            return [AllowAny()]
-        return super().get_permissions()
-    
-    def create(self, request):
-        """
-        Generate a new API key.
-        
-        This endpoint is public - anyone can generate a key.
-        In production, you might want to add email verification or reCAPTCHA.
-        """
-        serializer = APIKeyCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        # Generate key
-        api_key, full_key = APIKey.generate(
-            name=serializer.validated_data['name']
-        )
-        
-        return Response({
-            'id': str(api_key.id),
-            'name': api_key.name,
-            'prefix': api_key.prefix,
-            'key': full_key,
-            'created_at': api_key.created_at,
-            'warning': 'Save this key securely. It will not be shown again.',
-        }, status=status.HTTP_201_CREATED)
+    permission_classes = [AllowAny]  # Auth checked manually via api_key
     
     def list(self, request):
-        """List API keys for the authenticated user."""
-        if not hasattr(request, 'api_key'):
+        """List all API keys for the authenticated user."""
+        if not hasattr(request, 'api_key') or not request.api_key:
             return Response(
-                {'error': 'Authentication required'},
+                {'error': True, 'message': 'API key required'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
-        # Return just this key (we don't have multi-user yet)
-        keys = APIKey.objects.filter(id=request.api_key.id, is_active=True)
-        serializer = APIKeySerializer(keys, many=True)
-        return Response(serializer.data)
+        # For now, just return the current API key
+        # In a real system, you'd track multiple keys per user
+        api_key = request.api_key
+        return Response([{
+            'id': str(api_key.id),
+            'prefix': api_key.prefix,
+            'name': api_key.name,
+            'created_at': api_key.created_at.isoformat(),
+            'is_active': api_key.is_active,
+        }])
+    
+    def create(self, request):
+        """Generate a new API key."""
+        if not hasattr(request, 'api_key') or not request.api_key:
+            return Response(
+                {'error': True, 'message': 'API key required'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        name = request.data.get('name', 'Untitled Key')
+        api_key, full_key = APIKey.generate(name=name)
+        
+        return Response({
+            'id': str(api_key.id),
+            'prefix': api_key.prefix,
+            'name': api_key.name,
+            'created_at': api_key.created_at.isoformat(),
+            'is_active': api_key.is_active,
+            'full_key': full_key,  # Only shown once
+        }, status=status.HTTP_201_CREATED)
     
     def destroy(self, request, pk=None):
-        """Revoke an API key."""
-        if not hasattr(request, 'api_key'):
+        """Delete an API key."""
+        if not hasattr(request, 'api_key') or not request.api_key:
             return Response(
-                {'error': 'Authentication required'},
+                {'error': True, 'message': 'API key required'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
         try:
             api_key = APIKey.objects.get(id=pk)
+            
+            # Don't allow deleting the current API key
+            if api_key.id == request.api_key.id:
+                return Response(
+                    {'error': True, 'message': 'Cannot delete the current API key'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            api_key.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         except APIKey.DoesNotExist:
             return Response(
-                {'error': 'Not found'},
+                {'error': True, 'message': 'API key not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
-        
-        # Only allow revoking your own key
-        if api_key.id != request.api_key.id:
-            return Response(
-                {'error': 'Unauthorized'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        # Soft delete by marking inactive
-        api_key.is_active = False
-        api_key.save()
-        
-        return Response(status=status.HTTP_204_NO_CONTENT)

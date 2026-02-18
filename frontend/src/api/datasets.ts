@@ -20,8 +20,12 @@ export const datasetsApi = {
 
   // List all datasets
   list: async () => {
-    const response = await apiClient.get<Dataset[]>('/datasets/');
-    return response.data;
+    const response = await apiClient.get<PaginatedResponse<Dataset> | Dataset[]>('/datasets/');
+    // Handle both paginated and array responses
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    return response.data.results;
   },
 
   // Get dataset detail

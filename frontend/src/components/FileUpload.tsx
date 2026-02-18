@@ -22,8 +22,25 @@ export default function FileUpload() {
   const uploadMutation = useMutation({
     mutationFn: (data: { file: File; name?: string }) =>
       datasetsApi.upload(data.file, data.name),
-    onSuccess: (dataset) => {
-      navigate(`/datasets/${dataset.slug}`);
+    onSuccess: (dataset: any) => {
+      // Store API key if this is a new upload (first time)
+      // Backend returns 'api_key' field for new uploads
+      console.log('Upload response:', dataset);
+      console.log('API key from response:', dataset.api_key);
+      
+      if (dataset.api_key) {
+        localStorage.setItem('api_key', dataset.api_key);
+        console.log('Stored API key in localStorage');
+        
+        // Give localStorage time to flush and interceptor to pick it up
+        setTimeout(() => {
+          console.log('Navigating to dataset detail...');
+          navigate(`/datasets/${dataset.slug}`);
+        }, 100);
+      } else {
+        console.error('No API key in response!');
+        navigate(`/datasets/${dataset.slug}`);
+      }
     },
     onError: (error: any) => {
       setError(error.response?.data?.message || 'Failed to upload file');
@@ -105,8 +122,8 @@ export default function FileUpload() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Upload Dataset</h1>
-      <p className="text-gray-600 mb-8">
+      <h1 className="text-3xl font-bold text-white mb-2">Upload Dataset</h1>
+      <p className="text-gray-300 mb-8">
         Upload a CSV or Excel file to generate a REST API instantly
       </p>
 
@@ -116,10 +133,10 @@ export default function FileUpload() {
           className={cn(
             'border-2 border-dashed rounded-lg p-12 text-center transition-colors',
             isDragging
-              ? 'border-blue-500 bg-blue-50'
+              ? 'border-blue-500 bg-blue-900/20'
               : file
-              ? 'border-green-500 bg-green-50'
-              : 'border-gray-300 hover:border-gray-400'
+              ? 'border-green-500 bg-green-900/20'
+              : 'border-gray-600 hover:border-gray-500 bg-gray-800/50'
           )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -127,18 +144,18 @@ export default function FileUpload() {
         >
           {file ? (
             <div className="flex flex-col items-center space-y-2">
-              <CheckCircle2 className="w-12 h-12 text-green-600" />
+              <CheckCircle2 className="w-12 h-12 text-green-500" />
               <div className="flex items-center space-x-2">
-                <FileSpreadsheet className="w-5 h-5 text-green-600" />
-                <span className="font-medium text-gray-900">{file.name}</span>
+                <FileSpreadsheet className="w-5 h-5 text-green-500" />
+                <span className="font-medium text-white">{file.name}</span>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-400">
                 {(file.size / 1024).toFixed(2)} KB
               </span>
               <button
                 type="button"
                 onClick={() => setFile(null)}
-                className="text-sm text-blue-600 hover:text-blue-700"
+                className="text-sm text-blue-400 hover:text-blue-300"
               >
                 Choose a different file
               </button>
@@ -147,11 +164,11 @@ export default function FileUpload() {
             <>
               <Upload className={cn(
                 'w-12 h-12 mx-auto mb-4',
-                isDragging ? 'text-blue-600' : 'text-gray-400'
+                isDragging ? 'text-blue-500' : 'text-gray-500'
               )} />
-              <p className="text-lg font-medium text-gray-900 mb-2">
+              <p className="text-lg font-medium text-white mb-2">
                 Drop your file here, or{' '}
-                <label className="text-blue-600 hover:text-blue-700 cursor-pointer">
+                <label className="text-blue-400 hover:text-blue-300 cursor-pointer">
                   browse
                   <input
                     type="file"
@@ -161,7 +178,7 @@ export default function FileUpload() {
                   />
                 </label>
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-400">
                 CSV or Excel files up to 10MB
               </p>
             </>
@@ -170,16 +187,16 @@ export default function FileUpload() {
 
         {/* Error Message */}
         {error && (
-          <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-md">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="flex items-center space-x-2 p-4 bg-red-900/30 border border-red-700 rounded-md">
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <p className="text-sm text-red-200">{error}</p>
           </div>
         )}
 
         {/* Dataset Name Input */}
         {file && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-200 mb-2">
               Dataset Name (optional)
             </label>
             <input
@@ -189,7 +206,7 @@ export default function FileUpload() {
               placeholder="Leave blank to use filename"
               className="input"
             />
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-400">
               A URL-friendly slug will be auto-generated for the API
             </p>
           </div>
